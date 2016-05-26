@@ -10,10 +10,10 @@ gem 'spring', :group => :development
 
 group :development, :test do
   gem 'byebug'
+  gem 'rspec-rails'
 end
 
 group :test do
   gem 'simplecov', :require => false
-  gem 'rspec-rails'
 end
 
