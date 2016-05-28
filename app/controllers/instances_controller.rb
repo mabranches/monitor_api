@@ -4,42 +4,45 @@ class InstancesController < ApplicationController
   # GET /instances
   # GET /instances.json
   def usage
-    instances = { 
-     "instances":[
-       {
-        "name": "maquina1",
-        "cpu": [23, 24, 23, 25, 29, 5],
-        "memory": [12, 34, 78, 80, 44, 37],
-        "disk": [55, 23, 41, 23, 12, 64],
-        "timestamp": ["2015-05-22T15:33:43Z", "2015-05-22T15:43:43Z", "2015-05-22T15:53:43Z", "2015-05-22T16:03:43Z", "2015-05-22T16:13:43Z", "2015-05-22T16:23:43Z"]
-       },
-       {
-        "name": "maquina2",
-        "cpu": [23, 80, 90, 25, 29, 5],
-        "memory": [12, 19, 80, 85, 23, 35],
-        "disk": [55, 23, 41, 23, 12, 64],
-        "timestamp": ["2015-05-22T15:33:43Z", "2015-05-22T15:43:43Z", "2015-05-22T15:53:43Z", "2015-05-22T16:03:43Z", "2015-05-22T16:13:43Z", "2015-05-22T16:23:43Z"]
-       }
-     ]
-   }
-
-    #get all usage in the last 24h for all machines
-    #@instances = Instance.all
+    dynamodb = Aws::DynamoDB::Client.new(region: 'us-west-2')
+    items = dynamodb.scan(
+      table_name:'instances',
+      filter_expression: "usage_time < :now and usage_time > :24h_before",
+      expression_attribute_values:{ 
+        ":now ": Time.now.utc.iso8601,
+        ":24h_before":(Time.now - 24.hour).utc.iso8601
+      }).data.items
     
-    render json: instances
+    result = {}
+    items.each do |item|
+      #initialize
+      result[item["name"]] ||= {}
+      result[item["name"]]["mem"] ||= []
+      result[item["name"]]["disk"] ||= []
+      result[item["name"]]["cpu"] ||= []
+      #add_item
+      result[item["name"]]["mem"] << item["mem"]
+      result[item["name"]]["disk"] << item["disk"]
+      result[item["name"]]["cpu"] << item["cpu"]
+    end
+
+    render json: result 
   end
 
   # POST /instances
   # POST /instances.json
   def create
+    #create connection at a initializer 
+    dynamodb = Aws::DynamoDB::Client.new(region: 'us-west-2')
     usage = { 
-      name: "maquina1",
-      cpu: 22,
-      memory: 78,
-      disk: 34
+      instance_id: params[:instance_id],
+      cpu: params[:cpu],
+      mem: params[:mem],
+      disk: params[:disk],
+      usage_date: Time.now.utc.iso8601
     }
-
-    # add entry on DynDB
+    
+    dynamodb.put_item(table_name:'instances', item: usage)# add entry on DynDB
     #if @instance.save
       render json: usage, status: :created, location: usage 
     #else
