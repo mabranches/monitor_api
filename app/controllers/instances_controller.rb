@@ -4,7 +4,6 @@ class InstancesController < ApplicationController
   # GET /instances
   # GET /instances.json
   def usage
-    expected_count = 10
     dynamodb = Aws::DynamoDB::Client.new(region: 'us-west-2')
     items = dynamodb.scan(
       table_name:'instances',
@@ -13,25 +12,19 @@ class InstancesController < ApplicationController
         ":now": Time.now.utc.iso8601,
         ":24h_before":(Time.now - 24.hour).utc.iso8601
       }).data.items
-   
-    total = items.count 
-    step = total / expected_count;
+    
     result = {}
-    i=0
-    while (i < total) do
-      item = items[i]
+    items.each do |item|
       #initialize
       result[item["instance_id"]] ||= {}
       result[item["instance_id"]]["mem"] ||= []
       result[item["instance_id"]]["disk"] ||= []
       result[item["instance_id"]]["cpu"] ||= []
-      result[item["instance_id"]]["usage_time"] ||= []
       #add_item
       result[item["instance_id"]]["mem"] << item["mem"]
       result[item["instance_id"]]["disk"] << item["disk"]
       result[item["instance_id"]]["cpu"] << item["cpu"]
       result[item["instance_id"]]["usage_time"] << item["usage_time"]
-      i += step
     end
 
     render json: result 
