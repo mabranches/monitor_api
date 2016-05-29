@@ -16,14 +16,14 @@ class InstancesController < ApplicationController
     result = {}
     items.each do |item|
       #initialize
-      result[item["name"]] ||= {}
-      result[item["name"]]["mem"] ||= []
-      result[item["name"]]["disk"] ||= []
-      result[item["name"]]["cpu"] ||= []
+      result[item["instance_id"]] ||= {}
+      result[item["instance_id"]]["mem"] ||= []
+      result[item["instance_id"]]["disk"] ||= []
+      result[item["instance_id"]]["cpu"] ||= []
       #add_item
-      result[item["name"]]["mem"] << item["mem"]
-      result[item["name"]]["disk"] << item["disk"]
-      result[item["name"]]["cpu"] << item["cpu"]
+      result[item["instance_id"]]["mem"] << item["mem"]
+      result[item["instance_id"]]["disk"] << item["disk"]
+      result[item["instance_id"]]["cpu"] << item["cpu"]
     end
 
     render json: result 
