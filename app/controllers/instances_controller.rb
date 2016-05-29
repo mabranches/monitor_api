@@ -24,6 +24,7 @@ class InstancesController < ApplicationController
       result[item["instance_id"]]["mem"] << item["mem"]
       result[item["instance_id"]]["disk"] << item["disk"]
       result[item["instance_id"]]["cpu"] << item["cpu"]
+      result[item["instance_id"]]["usage_time"] << item["usage_time"]
     end
 
     render json: result 
