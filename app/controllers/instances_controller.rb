@@ -39,7 +39,7 @@ class InstancesController < ApplicationController
       cpu: params[:cpu],
       mem: params[:mem],
       disk: params[:disk],
-      usage_date: Time.now.utc.iso8601
+      usage_time: Time.now.utc.iso8601
     }
     
     dynamodb.put_item(table_name:'instances', item: usage)# add entry on DynDB
