@@ -51,4 +51,28 @@ class InstancesController < ApplicationController
     #  render json: @instance.errors, status: :unprocessable_entity
     #end
   end
+
+  def stop
+    instance_id = params[:id]
+    return render json: {}, status: :unprocessable_entity unless instance_id
+    ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
+    ec2.instance(instance_id).stop
+    render json: {instance:instance_id, status: 'stopped'}
+  end
+
+  def start
+    instance_id = params[:id]
+    return render json: {}, status: :unprocessable_entity unless instance_id
+    ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
+    ec2.instance(instance_id).start
+    render json: {instance:instance_id, status: 'running'}
+  end
+ 
+  def status
+    instance_id = params[:id]
+    return render json: {}, status: :unprocessable_entity unless instance_id
+    ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
+    status = ec2.instance(instance_id).state.name
+    render json: {instance_id: instance_id, status: status}
+  end
 end
