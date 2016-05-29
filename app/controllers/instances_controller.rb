@@ -9,7 +9,7 @@ class InstancesController < ApplicationController
       table_name:'instances',
       filter_expression: "usage_time < :now and usage_time > :24h_before",
       expression_attribute_values:{ 
-        ":now ": Time.now.utc.iso8601,
+        ":now": Time.now.utc.iso8601,
         ":24h_before":(Time.now - 24.hour).utc.iso8601
       }).data.items
     
