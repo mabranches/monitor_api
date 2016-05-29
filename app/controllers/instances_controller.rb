@@ -20,6 +20,7 @@ class InstancesController < ApplicationController
       result[item["instance_id"]]["mem"] ||= []
       result[item["instance_id"]]["disk"] ||= []
       result[item["instance_id"]]["cpu"] ||= []
+      result[item["instance_id"]]["usage_time"] ||= []
       #add_item
       result[item["instance_id"]]["mem"] << item["mem"]
       result[item["instance_id"]]["disk"] << item["disk"]
