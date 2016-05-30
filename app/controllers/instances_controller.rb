@@ -4,8 +4,7 @@ class InstancesController < ApplicationController
   # GET /instances
   # GET /instances.json
   def usage
-    dynamodb = Aws::DynamoDB::Client.new(region: 'us-west-2')
-    items = dynamodb.scan(
+    items = $dynamodb.scan(
       table_name:'instances',
       filter_expression: "usage_time < :now and usage_time > :24h_before",
       expression_attribute_values:{ 
@@ -35,28 +34,47 @@ class InstancesController < ApplicationController
   # POST /instances.json
   def create
     #create connection at a initializer 
-    dynamodb = Aws::DynamoDB::Client.new(region: 'us-west-2')
+    time = Time.now.utc.iso8601
     usage = { 
       instance_id: params[:instance_id],
       cpu: params[:cpu],
       mem: params[:mem],
       disk: params[:disk],
-      usage_time: Time.now.utc.iso8601
+      usage_time: time
     }
     
-    dynamodb.put_item(table_name:'instances', item: usage)# add entry on DynDB
-    #if @instance.save
-      render json: usage, status: :created, location: usage 
-    #else
-    #  render json: @instance.errors, status: :unprocessable_entity
-    #end
+    process = {
+      instance_id: params[:instance_id],
+      process: (params[:process].values rescue [])
+    } 
+    
+    $dynamodb.put_item(table_name:'instances', item: usage)
+    $dynamodb.put_item(table_name:'processes', item: process)
+
+    render json: [usage, process], status: :created
+    rescue Exception => e
+      puts e.message
+      render json: {error:e.message}, status: :unprocessable_entity
+  end
+
+  def processes 
+    items = $dynamodb.scan(
+      table_name:'processes'
+      ).data.items
+    render json: items
   end
 
   def stop
     instance_id = params[:id]
+    
     return render json: {}, status: :unprocessable_entity unless instance_id
     ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
-    ec2.instance(instance_id).stop
+    status = 'stopped'
+    begin
+      ec2.instance(instance_id).stop
+    rescue
+      status = 'unknown'
+    end
     render json: {instance:instance_id, status: 'stopped'}
   end
 
@@ -64,15 +82,20 @@ class InstancesController < ApplicationController
     instance_id = params[:id]
     return render json: {}, status: :unprocessable_entity unless instance_id
     ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
-    ec2.instance(instance_id).start
-    render json: {instance:instance_id, status: 'running'}
+    status = 'running'
+    begin
+      ec2.instance(instance_id).start
+    rescue
+      status = 'unknown'
+    end
+    render json: {instance:instance_id, status: status}
   end
  
   def status
     instance_id = params[:id]
     return render json: {}, status: :unprocessable_entity unless instance_id
     ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
-    status = ec2.instance(instance_id).state.name
+    status = ec2.instance(instance_id).state.name rescue "unknown"
     render json: {instance_id: instance_id, status: status}
   end
 end
