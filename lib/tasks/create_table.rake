@@ -1,9 +1,8 @@
 namespace :db do
   desc 'Create Table Instances at DynamoDB'
-  task :create_instances do
+  task :create_instances => :environment do
 
-    dynamodb = Aws::DynamoDB::Client.new(region: 'us-west-2')
-    dynamodb.create_table(
+    $dynamodb.create_table(
       table_name: "instances",
       key_schema:[
         {attribute_name:'instance_id', key_type: 'HASH'},
