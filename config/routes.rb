@@ -4,4 +4,5 @@ Rails.application.routes.draw do
   post 'instances/:id/start' => 'instances#start'
   post 'instances/:id/stop' => 'instances#stop'
   get 'instances/:id/status' => 'instances#status'
+  get 'instances/processes' => 'instances#processes'
 end 
