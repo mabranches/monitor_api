@@ -7,11 +7,11 @@ class InstancesController < ApplicationController
     items = $dynamodb.scan(
       table_name:'instances',
       filter_expression: "usage_time < :now and usage_time > :24h_before",
-      expression_attribute_values:{ 
+      expression_attribute_values:{
         ":now": Time.now.utc.iso8601,
         ":24h_before":(Time.now - 24.hour).utc.iso8601
       }).data.items
-    
+
     result = {}
     items.each do |item|
       #initialize
@@ -27,27 +27,27 @@ class InstancesController < ApplicationController
       result[item["instance_id"]]["usage_time"] << item["usage_time"]
     end
 
-    render json: result 
+    render json: result
   end
 
   # POST /instances
   # POST /instances.json
   def create
-    #create connection at a initializer 
+    #create connection at a initializer
     time = Time.now.utc.iso8601
-    usage = { 
+    usage = {
       instance_id: params[:instance_id],
       cpu: params[:cpu],
       mem: params[:mem],
       disk: params[:disk],
       usage_time: time
     }
-    
+
     process = {
       instance_id: params[:instance_id],
       process: (params[:process].values rescue [])
-    } 
-    
+    }
+
     $dynamodb.put_item(table_name:'instances', item: usage)
     $dynamodb.put_item(table_name:'processes', item: process)
 
@@ -57,16 +57,20 @@ class InstancesController < ApplicationController
       render json: {error:e.message}, status: :unprocessable_entity
   end
 
-  def processes 
+  def processes
     items = $dynamodb.scan(
       table_name:'processes'
       ).data.items
-    render json: items
+
+    process_items = items.collect do |item|
+      {item["instance_id"] => item}
+    end
+    render json: process_items
   end
 
   def stop
     instance_id = params[:id]
-    
+
     return render json: {}, status: :unprocessable_entity unless instance_id
     ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
     status = 'stopped'
@@ -90,7 +94,7 @@ class InstancesController < ApplicationController
     end
     render json: {instance:instance_id, status: status}
   end
- 
+
   def status
     instance_id = params[:id]
     return render json: {}, status: :unprocessable_entity unless instance_id
