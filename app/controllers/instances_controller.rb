@@ -62,8 +62,9 @@ class InstancesController < ApplicationController
       table_name:'processes'
       ).data.items
 
-    process_items = items.collect do |item|
-      {item["instance_id"] => item}
+    process_items = {}
+    items.each do |item|
+      process_items[item["instance_id"]] = item
     end
     render json: process_items
   end
