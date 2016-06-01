@@ -1,29 +1,9 @@
 RSpec.configure do |config|
   config.before(:each) do
-      $dynamodb.delete_table(table_name:'instances') rescue nil
-      $dynamodb.delete_table(table_name:'processes') rescue nil
-      $dynamodb.create_table(
-        table_name: "instances",
-        key_schema:[
-          {attribute_name:'instance_id', key_type: 'HASH'},
-          {attribute_name: 'usage_time', key_type: 'RANGE'}
-        ],
-        attribute_definitions:[
-          {attribute_name:'instance_id', attribute_type: 'S'},
-          {attribute_name:'usage_time', attribute_type: 'S'}
-        ],
-        provisioned_throughput: { read_capacity_units: 1, write_capacity_units: 1,}
-      ) rescue nil
-      $dynamodb.create_table(
-        table_name: "processes",
-        key_schema:[
-          {attribute_name:'instance_id', key_type: 'HASH'},
-        ],
-        attribute_definitions:[
-          {attribute_name:'instance_id', attribute_type: 'S'},
-        ],
-        provisioned_throughput: { read_capacity_units: 1, write_capacity_units: 1,}
-      ) rescue nil
+    Usage.delete_table rescue nil
+    Process.delete_table rescue nil
+    Usage.create_table rescue nil
+    Process.create_table rescue nil
   end
   config.after(:each) do
   end
