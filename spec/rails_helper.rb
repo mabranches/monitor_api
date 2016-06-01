@@ -6,8 +6,6 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'spec_helper'
 require 'rspec/rails'
 
-
-
 class DynSpecData
   def self.create_usage_data(usage_data=[])
     create_dynamo_db_data('instances', usage_data)
