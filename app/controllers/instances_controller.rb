@@ -26,12 +26,12 @@ class InstancesController < ApplicationController
     }
 
     process = {
-      instance_id: instance[:instance_id],
+      instance_id: params[:id],
       process: (instance[:process].values rescue [])
     }
-
+byebug
     Usage.create(usage)
-    Process.create(process)
+    ProcessList.create(process)
 
     render json: [usage, process], status: :created
     rescue Exception => e
@@ -40,7 +40,7 @@ class InstancesController < ApplicationController
   end
 
   def processes
-    items = Process.get
+    items = ProcessList.get
     process_items = {}
     items.each do |item|
       process_items[item["instance_id"]] = item
