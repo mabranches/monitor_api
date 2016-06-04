@@ -68,8 +68,55 @@ RSpec.describe InstancesController, type: :controller do
     end
   end
   describe "get #status" do
-    it "should return the machine status" do
+    before do
+      @ec2 = double('ec2')
+      allow(@ec2).to receive_message_chain(:instance, :state, :name) {"state"}
+
+      allow(Aws::EC2::Resource).to receive(:new){@ec2}
     end
+
+    it "should return the machine status" do
+      get :status, {id:'instance_id'}, valid_session
+      expect(response.status).to eq(200)
+      expect(JSON.parse(response.body)['status']).to eq("state")
+
+    end
+    it "In case of an exception the status should be 'unknow'" do
+      allow(@ec2).to receive_message_chain(:instance, :state, :name) {raise "some error"}
+      get :status, {id:'instance_id'}, valid_session
+      expect(response.status).to eq(200)
+      expect(JSON.parse(response.body)['status']).to eq("unknown")
+    end
+    it "In case of an exception a error should be written in log " do
+      allow(@ec2).to receive_message_chain(:instance, :state, :name) {raise "some error"}
+      logger = double('logger')
+      expect(logger).to receive(:error).once
+      allow(Rails).to receive(:logger){logger}
+
+      get :status, {id:'instance_id'}, valid_session
+
+    end
+  end
+
+  describe "get #report" do
+    it "should return a report" do
+    end
+  end
+
+  describe "POST #create" do
+    context "with valid params" do
+      it "creates a new usage" do
+        expect {
+          post :create, {:id => "test_id", :instance => valid_attributes}, valid_session
+        }.to change(Usage, :count).by(1)
+      end
+      it "creates a new process list" do
+        expect {
+          post :create, {:id => "test_id", :instance => valid_attributes}, valid_session
+        }.to change(ProcessList, :count).by(1)
+      end
+    end
+
   end
 
   describe "get #report" do
