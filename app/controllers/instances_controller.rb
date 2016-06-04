@@ -29,7 +29,7 @@ class InstancesController < ApplicationController
       instance_id: params[:id],
       process: (instance[:process].values rescue [])
     }
-byebug
+
     Usage.create(usage)
     ProcessList.create(process)
 
@@ -78,8 +78,13 @@ byebug
   def status
     instance_id = params[:id]
     return render json: {}, status: :unprocessable_entity unless instance_id
-    ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
-    status = ec2.instance(instance_id).state.name rescue "unknown"
+    begin
+      ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
+      status = ec2.instance(instance_id).state.name
+    rescue => e
+      Rails.logger.error("Impossible to get instance status:#{e.message}")
+      status='unknown'
+    end
     render json: {instance_id: instance_id, status: status}
   end
 
