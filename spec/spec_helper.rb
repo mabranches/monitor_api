@@ -1,9 +1,9 @@
 RSpec.configure do |config|
   config.before(:each) do
     Usage.delete_table rescue nil
-    Process.delete_table rescue nil
+    ProcessList.delete_table rescue nil
     Usage.create_table rescue nil
-    Process.create_table rescue nil
+    ProcessList.create_table rescue nil
   end
   config.after(:each) do
   end

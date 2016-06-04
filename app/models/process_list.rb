@@ -1,4 +1,5 @@
-class Process < Model
+class ProcessList
+  include Model
   self.table_name = 'processes'
   class << self
     def get
