@@ -1,7 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe InstancesController, type: :controller do
-
+  before(:all) do
+  end
   let(:valid_attributes) {
     {
        "id" => 'test_id',
@@ -23,26 +24,25 @@ RSpec.describe InstancesController, type: :controller do
       now = Time.parse("2016-05-01T:23:00:00Z")
       allow(Time).to receive(:now){now}
       date = Time.parse("2016-05-01T:20:23:32Z")
+
       usages = []
       usage = valid_attributes
       usage["instance_id"] = "test_id"
       (1..3).each do
         new_usage = usage.dup
-        new_usage["disk"] = new_usage["disk"]
         new_usage["usage_time"] = date.iso8601
         date += 10.minutes
         usage["disk"] += 5
-        usages << new_usage.dup
+        usages << new_usage
       end
 
       usage["instance_id"] = "test_id2"
       (1..3).each do
         new_usage = usage.dup
-        new_usage["cpu"] = new_usage["cpu"]
         new_usage["usage_time"] = date.iso8601
         date += 10.minutes
         usage["cpu"] += 5
-        usages << new_usage.dup
+        usages << new_usage
       end
       DynSpecData.create_usage_data(usages)
     end
@@ -83,6 +83,11 @@ RSpec.describe InstancesController, type: :controller do
         expect {
           post :create, {:id => "test_id", :instance => valid_attributes}, valid_session
         }.to change(Usage, :count).by(1)
+      end
+      it "creates a new process list" do
+        expect {
+          post :create, {:id => "test_id", :instance => valid_attributes}, valid_session
+        }.to change(ProcessList, :count).by(1)
       end
     end
 
