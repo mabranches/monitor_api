@@ -1,6 +1,6 @@
 class Usage
   include Model
-  self.table_name = 'instances'
+  self.table_name = 'usage'
   class << self
     def get(start, stop)
         items = @conn.scan(
@@ -12,6 +12,13 @@ class Usage
         }).data.items
     end
 
+    def get_instance(instance_id, start, stop)
+      byebug
+      @conn.query({
+        table_name: @table_name,
+        key_condition_expression: "instance_id = #{instance_id} AND usage_time BETWEEN #{start}  AND #{stop}"
+      })
+    end
     def create_table
       @conn.create_table(
         table_name: @table_name,
