@@ -13,7 +13,6 @@ class Usage
     end
 
     def get_instance(instance_id, start, stop)
-      byebug
       @conn.query({
         table_name: @table_name,
         key_condition_expression: "instance_id = #{instance_id} AND usage_time BETWEEN #{start}  AND #{stop}"

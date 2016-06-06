@@ -144,12 +144,12 @@ RSpec.describe InstancesController, type: :controller do
     context "with valid params" do
       it "creates a new usage" do
         expect {
-          post :create, {:id => "test_id", :instance => valid_attributes}, valid_session
+          post :create, {:id => "test_id_post", :instance => valid_attributes}, valid_session
         }.to change(Usage, :count).by(1)
       end
       it "creates a new process list" do
         expect {
-          post :create, {:id => "test_id", :instance => valid_attributes}, valid_session
+          post :create, {:id => "test_id_post", :instance => valid_attributes}, valid_session
         }.to change(ProcessList, :count).by(1)
       end
     end
@@ -165,12 +165,12 @@ RSpec.describe InstancesController, type: :controller do
     context "with valid params" do
       it "creates a new usage" do
         expect {
-          post :create, {:id => "test_id", :instance => valid_attributes}, valid_session
+          post :create, {:id => "test_id_post", :instance => valid_attributes}, valid_session
         }.to change(Usage, :count).by(1)
       end
       it "creates a new process list" do
         expect {
-          post :create, {:id => "test_id", :instance => valid_attributes}, valid_session
+          post :create, {:id => "test_id_post", :instance => valid_attributes}, valid_session
         }.to change(ProcessList, :count).by(1)
       end
     end

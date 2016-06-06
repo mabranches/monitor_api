@@ -2,7 +2,6 @@ class InstancesController < ApplicationController
   before_action :set_instance, only: [:show, :update, :destroy]
 
   def usage
-
    items = Usage.get(Time.now.utc.iso8601, (Time.now - 24.hour).utc.iso8601)
     result = {}
 
@@ -20,7 +19,6 @@ class InstancesController < ApplicationController
   end
 
   def create
-    #create connection at a initializer
     time = Time.now.utc.iso8601
     instance = params[:instance]
     usage = {
