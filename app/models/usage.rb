@@ -3,7 +3,7 @@ class Usage
   self.table_name = 'instances'
   class << self
     def get(start, stop)
-        items = $dynamodb.scan(
+        items = @conn.scan(
         table_name:@table_name,
         filter_expression: "usage_time < :now and usage_time > :stop",
         expression_attribute_values:{
@@ -14,7 +14,7 @@ class Usage
 
     def create_table
       $dynamodb.create_table(
-        table_name: @table_name,
+        table_name: @conn,
         key_schema:[
           {attribute_name:'instance_id', key_type: 'HASH'},
           {attribute_name: 'usage_time', key_type: 'RANGE'}

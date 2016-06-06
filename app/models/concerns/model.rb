@@ -1,3 +1,4 @@
+require './lib/dynamodb.rb'
 module Model
   extend ActiveSupport::Concern
 
@@ -8,14 +9,23 @@ module Model
     def table_name
       @table_name
     end
+    def conn=(conn)
+      @conn = conn
+    end
+    def conn
+      @conn
+    end
     def count
-      $dynamodb.scan(table_name: @table_name).count
+      @conn.scan(table_name: @table_name).count
     end
     def create(item)
-      $dynamodb.put_item(table_name: @table_name, item: item)
+      @conn.put_item(table_name: @table_name, item: item)
     end
     def delete_table
-      $dynamodb.delete_table(table_name: @table_name)
+      @conn.delete_table(table_name: @table_name)
     end
+  end
+  included do
+    self.conn = Dynamodb.instance.conn
   end
 end

@@ -73,5 +73,4 @@ Rails.application.configure do
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
-  $dynamodb = Aws::DynamoDB::Client.new(region: 'us-west-2')
 end
