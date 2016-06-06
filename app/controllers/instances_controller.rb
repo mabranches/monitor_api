@@ -13,6 +13,12 @@ class InstancesController < ApplicationController
     render json: result
   end
 
+  def usage_instance
+  end
+
+  def processes_instance
+  end
+
   def create
     #create connection at a initializer
     time = Time.now.utc.iso8601

@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   post 'instances/:id/stop' => 'instances#stop'
   get 'instances/:id/status' => 'instances#status'
   get 'instances/processes' => 'instances#processes'
-end 
+  get 'instances/usage' => 'instances#usage_instance'
+  get 'instances/processes' => 'instances#processes_instance'
+end

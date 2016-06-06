@@ -18,34 +18,56 @@ RSpec.describe InstancesController, type: :controller do
   }
 
   let(:valid_session) { {} }
+  before do
+    @now = Time.parse("2016-05-01T:23:00:00Z")
+    allow(Time).to receive(:now){@now}
+    @date = Time.parse("2016-05-01T:20:23:32Z")
+
+    usages = []
+    usage = {"disk"=> 51, "mem"=> 9, "cpu"=> 1}
+
+    usage["instance_id"] = "test_id"
+    (1..3).each do
+      new_usage = usage.dup
+      new_usage["usage_time"] = @date.iso8601
+      @date += 10.minutes
+      usage["disk"] += 5
+      usages << new_usage
+    end
+
+    usage["instance_id"] = "test_id2"
+    (1..3).each do
+      new_usage = usage.dup
+      new_usage["usage_time"] = @date.iso8601
+      @date += 10.minutes
+      usage["cpu"] += 5
+      usages << new_usage
+    end
+
+    processes = [
+      {:instance_id=>"test_id", :process=>["root", "1", "0.0", "0.0", "command1"]},
+      {:instance_id=>"test_id2", :process=>["root", "1", "0.0", "0.0", "command2"]}
+    ]
+    DynSpecData.create_usage_data(usages)
+    DynSpecData.create_process_data(processes)
+  end
+
+  describe "GET #:instance/usage" do
+    it "should return all usage of an instance" do
+      get :usage_instance, {:id => 'instance_id'}, valid_session
+      expect(response.status).to eq(200)
+      expect(JSON.parse(response.body)).to eq(
+        {"test_id"=>{"mem"=>["9.0", "9.0", "9.0"],
+          "disk"=>["51.0", "56.0", "61.0"],
+          "cpu"=>["1.0", "1.0", "1.0"],
+          "usage_time"=>["2016-05-01T20:23:32Z", "2016-05-01T20:33:32Z", "2016-05-01T20:43:32Z"]}
+        })
+
+    end
+  end
+
 
   describe "GET #usage" do
-    before do
-      now = Time.parse("2016-05-01T:23:00:00Z")
-      allow(Time).to receive(:now){now}
-      date = Time.parse("2016-05-01T:20:23:32Z")
-
-      usages = []
-      usage = valid_attributes
-      usage["instance_id"] = "test_id"
-      (1..3).each do
-        new_usage = usage.dup
-        new_usage["usage_time"] = date.iso8601
-        date += 10.minutes
-        usage["disk"] += 5
-        usages << new_usage
-      end
-
-      usage["instance_id"] = "test_id2"
-      (1..3).each do
-        new_usage = usage.dup
-        new_usage["usage_time"] = date.iso8601
-        date += 10.minutes
-        usage["cpu"] += 5
-        usages << new_usage
-      end
-      DynSpecData.create_usage_data(usages)
-    end
     it "should return all usage from last 24h" do
       get :usage, {}, valid_session
       expect(response.status).to eq(200)
@@ -63,8 +85,23 @@ RSpec.describe InstancesController, type: :controller do
     end
   end
 
+  describe "get #:instance/processes" do
+    it "should return all processes for an instance" do
+      get :processes_instance, {:id => 'instance_id'}, valid_session
+      expect(response.status).to eq(200)
+      expect(JSON.parse(response.body)).to eq(
+        {"test_id"=>{"process"=>["root", "1", "0.0", "0.0", "command1"], "instance_id"=>"test_id"}}
+      )
+    end
+  end
   describe "get #processes" do
     it "should return all processes" do
+      get :processes, {}, valid_session
+      expect(response.status).to eq(200)
+      expect(JSON.parse(response.body)).to eq({
+        "test_id2"=>{"process"=>["root", "1", "0.0", "0.0", "command2"], "instance_id"=>"test_id2"},
+        "test_id"=>{"process"=>["root", "1", "0.0", "0.0", "command1"], "instance_id"=>"test_id"}
+      })
     end
   end
   describe "get #status" do
