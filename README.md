@@ -1,28 +1,37 @@
-== README
+# Monitor API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+An example api to hold information about a running machine such as:
+* Memory
+* Disk
+* Load
+* processes
 
-Things you may want to cover:
+This API was deployed at AWS using API Gateway [here](https://r91t8rksue.execute-api.us-west-2.amazonaws.com/prod/instances/usage).
 
-* Ruby version
+## Running
+##### Create Table
+```shell 
+bundle exec rake db:create_tables
+```
+##### start rails
+```shell 
+  bundle exec rails s
+```
+## Test
+You need to run a local DynamoDB Instance.
+##### DynamoDB Installation
+```shell
+sudo apt-get install openjdk-7-jre-headless -y
+mkdir -p dynamodb
+cd dynamodb
+wget http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest
+tar -xvzf dynamodb_local_latest
+rm dynamodb_local_latest
+```
+##### Running DynamoDB
+```shell
+java -Djava.library.path=. -jar DynamoDBLocal.jar
+```
+##### Executing testes
+  bundle exec rspec spec
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
-
-
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
