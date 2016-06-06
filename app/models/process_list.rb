@@ -3,13 +3,13 @@ class ProcessList
   self.table_name = 'processes'
   class << self
     def get
-      items = $dynamodb.scan(
+      items = @conn.scan(
         table_name: @table_name
       ).data.items
     end
 
     def create_table
-      $dynamodb.create_table(
+      @conn.create_table(
         table_name: @table_name,
         key_schema:[
           {attribute_name:'instance_id', key_type: 'HASH'},

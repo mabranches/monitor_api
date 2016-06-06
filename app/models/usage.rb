@@ -13,8 +13,8 @@ class Usage
     end
 
     def create_table
-      $dynamodb.create_table(
-        table_name: @conn,
+      @conn.create_table(
+        table_name: @table_name,
         key_schema:[
           {attribute_name:'instance_id', key_type: 'HASH'},
           {attribute_name: 'usage_time', key_type: 'RANGE'}
