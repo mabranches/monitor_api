@@ -1,23 +1,11 @@
 class InstancesController < ApplicationController
   before_action :set_instance, only: [:show, :update, :destroy]
   def usage
-    items = Usage.get((Time.now - 24.hours).utc.iso8601, Time.now.utc.iso8601)
-
-    result = {}
-    items.each do |item|
-      add_item_hash(result, item)
-    end
-    render json: result
+    usage_common(:get, (Time.now - 24.hours).utc.iso8601, Time.now.utc.iso8601)
   end
 
   def usage_instance
-    items = Usage.get_instance(params[:id], (Time.now - 24.hours).utc.iso8601, Time.now.utc.iso8601)
-
-    result = {}
-    items.each do |item|
-      add_item_hash(result, item)
-    end
-    render json: result
+    usage_common(:get_instance, params[:id], (Time.now - 24.hours).utc.iso8601, Time.now.utc.iso8601)
   end
 
   def processes_instance
@@ -69,6 +57,16 @@ class InstancesController < ApplicationController
   end
 
   private
+
+  def usage_common(method, *args)
+    items = Usage.send(method, *args)
+
+    result = {}
+    items.each do |item|
+      add_item_hash(result, item)
+    end
+    render json: result
+  end
 
   def ec2_instance
     instance_id = @params[:id]
