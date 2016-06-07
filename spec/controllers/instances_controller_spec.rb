@@ -52,9 +52,9 @@ RSpec.describe InstancesController, type: :controller do
     DynSpecData.create_process_data(processes)
   end
 
-  describe "GET #:instance/usage" do
+  describe "GET #usage_instance" do
     it "should return all usage of an instance" do
-      get :usage_instance, {:id => 'instance_id'}, valid_session
+      get :usage_instance, {:id => 'test_id'}, valid_session
       expect(response.status).to eq(200)
       expect(JSON.parse(response.body)).to eq(
         {"test_id"=>{"mem"=>["9.0", "9.0", "9.0"],
@@ -87,7 +87,7 @@ RSpec.describe InstancesController, type: :controller do
 
   describe "get #:instance/processes" do
     it "should return all processes for an instance" do
-      get :processes_instance, {:id => 'instance_id'}, valid_session
+      get :processes_instance, {:id => 'test_id'}, valid_session
       expect(response.status).to eq(200)
       expect(JSON.parse(response.body)).to eq(
         {"test_id"=>{"process"=>["root", "1", "0.0", "0.0", "command1"], "instance_id"=>"test_id"}}
