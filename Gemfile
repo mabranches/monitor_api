@@ -6,14 +6,14 @@ gem 'rails', '4.2.6'
 
 gem 'rails-api'
 
-gem 'spring', :group => :development
+gem 'spring', group: :development
 
 group :development, :test do
   gem 'byebug'
   gem 'rspec-rails'
+  gem 'rubocop', require: false
 end
 
 group :test do
-  gem 'simplecov', :require => false
+  gem 'simplecov', require: false
 end
-

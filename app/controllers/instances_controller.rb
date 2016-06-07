@@ -2,7 +2,7 @@ class InstancesController < ApplicationController
   before_action :set_instance, only: [:show, :update, :destroy]
 
   def usage
-    items = Usage.get((Time.now - 24.hour).utc.iso8601, Time.now.utc.iso8601)
+    items = Usage.get((Time.now - 24.hours).utc.iso8601, Time.now.utc.iso8601)
 
     result = {}
     items.each do |item|
@@ -12,7 +12,7 @@ class InstancesController < ApplicationController
   end
 
   def usage_instance
-    items = Usage.get_instance(params[:id], (Time.now - 24.hour).utc.iso8601, Time.now.utc.iso8601)
+    items = Usage.get_instance(params[:id], (Time.now - 24.hours).utc.iso8601, Time.now.utc.iso8601)
 
     result = {}
     items.each do |item|
@@ -25,13 +25,12 @@ class InstancesController < ApplicationController
     items = ProcessList.get_instance(params[:id])
     process_items = {}
     items.each do |item|
-      process_items[item["instance_id"]] = item
+      process_items[item['instance_id']] = item
     end
     render json: process_items
   end
 
   def create
-
     usage = build_usage_hash params
     process = build_process_hash params
 
@@ -39,16 +38,16 @@ class InstancesController < ApplicationController
     ProcessList.create(process)
 
     render json: [usage, process], status: :created
-    rescue => e
-      logger.error("Was not possible to update instance data: #{e.message}")
-      render json: {error:e.message}, status: :unprocessable_entity
+  rescue => e
+    logger.error("Was not possible to update instance data: #{e.message}")
+    render json: { error: e.message }, status: :unprocessable_entity
   end
 
   def processes
     items = ProcessList.get
     process_items = {}
     items.each do |item|
-      process_items[item["instance_id"]] = item
+      process_items[item['instance_id']] = item
     end
     render json: process_items
   end
@@ -64,7 +63,7 @@ class InstancesController < ApplicationController
     rescue
       status = 'unknown'
     end
-    render json: {instance:instance_id, status: 'stopped'}
+    render json: { instance: instance_id, status: status }
   end
 
   def start
@@ -77,7 +76,7 @@ class InstancesController < ApplicationController
     rescue
       status = 'unknown'
     end
-    render json: {instance:instance_id, status: status}
+    render json: { instance: instance_id, status: status }
   end
 
   def status
@@ -88,19 +87,19 @@ class InstancesController < ApplicationController
       status = ec2.instance(instance_id).state.name
     rescue => e
       Rails.logger.error("Impossible to get instance status:#{e.message}")
-      status='unknown'
+      status = 'unknown'
     end
-    render json: {instance_id: instance_id, status: status}
+    render json: { instance_id: instance_id, status: status }
   end
 
   private
 
   def add_item_hash(result, item)
-      result[item["instance_id"]] ||= Hash.new { |h, k| h[k] = [] }
-      result[item["instance_id"]]["mem"] << item["mem"]
-      result[item["instance_id"]]["disk"] << item["disk"]
-      result[item["instance_id"]]["cpu"] << item["cpu"]
-      result[item["instance_id"]]["usage_time"] << item["usage_time"]
+    result[item['instance_id']] ||= Hash.new { |h, k| h[k] = [] }
+    result[item['instance_id']]['mem'] << item['mem']
+    result[item['instance_id']]['disk'] << item['disk']
+    result[item['instance_id']]['cpu'] << item['cpu']
+    result[item['instance_id']]['usage_time'] << item['usage_time']
   end
 
   def build_usage_hash(params)
@@ -118,7 +117,7 @@ class InstancesController < ApplicationController
     instance = params[:instance]
     {
       instance_id: params[:id],
-      process: (instance[:process].values rescue [])
+      process: instance[:process].try(:values) || []
     }
   end
 end

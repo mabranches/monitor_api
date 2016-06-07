@@ -1,6 +1,6 @@
 namespace :db do
   desc 'Create Tables at DynamoDB'
-  task :create_tables => :environment do
+  task create_tables: :environment do
     begin
       Usage.create_table
     rescue => e
