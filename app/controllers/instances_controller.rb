@@ -31,27 +31,16 @@ class InstancesController < ApplicationController
   end
 
   def create
-    time = Time.now.utc.iso8601
-    instance = params[:instance]
-    usage = {
-      instance_id: params[:id],
-      cpu: instance[:cpu],
-      mem: instance[:mem],
-      disk: instance[:disk],
-      usage_time: time
-    }
 
-    process = {
-      instance_id: params[:id],
-      process: (instance[:process].values rescue [])
-    }
+    usage = build_usage_hash params
+    process = build_process_hash params
 
     Usage.create(usage)
     ProcessList.create(process)
 
     render json: [usage, process], status: :created
-    rescue Exception => e
-      logger.error(e.message)
+    rescue => e
+      logger.error("Was not possible to update instance data: #{e.message}")
       render json: {error:e.message}, status: :unprocessable_entity
   end
 
@@ -112,5 +101,24 @@ class InstancesController < ApplicationController
       result[item["instance_id"]]["disk"] << item["disk"]
       result[item["instance_id"]]["cpu"] << item["cpu"]
       result[item["instance_id"]]["usage_time"] << item["usage_time"]
+  end
+
+  def build_usage_hash(params)
+    instance = params[:instance]
+    {
+      instance_id: params[:id],
+      cpu: instance[:cpu],
+      mem: instance[:mem],
+      disk: instance[:disk],
+      usage_time: Time.now.utc.iso8601
+    }
+  end
+
+  def build_process_hash(params)
+    instance = params[:instance]
+    {
+      instance_id: params[:id],
+      process: (instance[:process].values rescue [])
+    }
   end
 end
