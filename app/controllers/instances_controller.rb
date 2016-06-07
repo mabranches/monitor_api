@@ -1,6 +1,5 @@
 class InstancesController < ApplicationController
   before_action :set_instance, only: [:show, :update, :destroy]
-
   def usage
     items = Usage.get((Time.now - 24.hours).utc.iso8601, Time.now.utc.iso8601)
 
@@ -39,7 +38,7 @@ class InstancesController < ApplicationController
 
     render json: [usage, process], status: :created
   rescue => e
-    logger.error("Was not possible to update instance data: #{e.message}")
+    Rails.logger.error("Was not possible to update instance data: #{e.message}")
     render json: { error: e.message }, status: :unprocessable_entity
   end
 
@@ -53,40 +52,43 @@ class InstancesController < ApplicationController
   end
 
   def stop
-    aux_action(params, :stop)
+    @params = params
+    aux_action(:stop, 'stopped')
   end
 
   def start
-    aux_action(params, :start)
+    @params = params
+    aux_action(:start, 'started')
   end
 
   def status
-    instance_id = params[:id]
-    return render json: {}, status: :unprocessable_entity unless instance_id
-    begin
-      ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
-      status = ec2.instance(instance_id).state.name
-    rescue => e
-      Rails.logger.error("Impossible to get instance status:#{e.message}")
-      status = 'unknown'
+    @params = params
+    aux_block do |ec2, instance_id|
+      @status = ec2.state.name
     end
-    render json: { instance_id: instance_id, status: status }
   end
 
   private
 
-  def aux_action (params, method)
-    instance_id = params[:id]
+  def aux_block(&block)
+    instance_id = @params[:id]
 
     return render json: {}, status: :unprocessable_entity unless instance_id
-    ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
-    status = 'stopped'
+    ec2 = Aws::EC2::Resource.new(region: 'us-west-2').instance(instance_id)
+    @status = 'unknown'
     begin
-      ec2.instance(instance_id).send(method)
-    rescue
-      status = 'unknown'
+      yield ec2
+    rescue => e
+      Rails.logger.error("Was not possible to execute action #{@params[:action]}: #{e.message}")
     end
-    render json: { instance: instance_id, status: status }
+    render json: { instance: instance_id, status: @status }
+  end
+
+  def aux_action (method, status)
+    aux_block do |ec2|
+      ec2.start
+      @status = status
+    end
   end
 
   def add_item_hash(result, item)
