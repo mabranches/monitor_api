@@ -5,19 +5,25 @@ class Usage
     def get(start, stop)
         items = @conn.scan(
         table_name:@table_name,
-        filter_expression: "usage_time < :now and usage_time > :stop",
+        filter_expression: "usage_time >= :start AND usage_time <= :stop",
         expression_attribute_values:{
-          ":now": start,
+          ":start": start,
           ":stop": stop
         }).data.items
     end
 
     def get_instance(instance_id, start, stop)
-      conn.query({
+      items= conn.query({
         table_name: @table_name,
-        key_condition_expression: "instance_id = #{instance_id} AND usage_time BETWEEN #{start}  AND #{stop}"
-      })
+        key_condition_expression: "instance_id=:instance_id AND usage_time BETWEEN :start AND :stop",
+        expression_attribute_values:{
+          ":instance_id":"#{instance_id}",
+          ":start": start,
+          ":stop": stop
+        }
+      }).data.items
     end
+
     def create_table
       conn.create_table(
         table_name: @table_name,

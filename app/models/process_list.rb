@@ -8,6 +8,16 @@ class ProcessList
       ).data.items
     end
 
+    def get_instance(instance_id)
+      items= conn.query({
+        table_name: @table_name,
+        key_condition_expression: "instance_id=:instance_id",
+        expression_attribute_values:{
+          ":instance_id":"#{instance_id}",
+        }
+      }).data.items
+    end
+
     def create_table
       conn.create_table(
         table_name: @table_name,
