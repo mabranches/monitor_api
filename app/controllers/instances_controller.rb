@@ -2,20 +2,32 @@ class InstancesController < ApplicationController
   before_action :set_instance, only: [:show, :update, :destroy]
 
   def usage
-   items = Usage.get(Time.now.utc.iso8601, (Time.now - 24.hour).utc.iso8601)
-    result = {}
+    items = Usage.get((Time.now - 24.hour).utc.iso8601, Time.now.utc.iso8601)
 
+    result = {}
     items.each do |item|
       add_item_hash(result, item)
     end
-
     render json: result
   end
 
   def usage_instance
+    items = Usage.get_instance(params[:id], (Time.now - 24.hour).utc.iso8601, Time.now.utc.iso8601)
+
+    result = {}
+    items.each do |item|
+      add_item_hash(result, item)
+    end
+    render json: result
   end
 
   def processes_instance
+    items = ProcessList.get_instance(params[:id])
+    process_items = {}
+    items.each do |item|
+      process_items[item["instance_id"]] = item
+    end
+    render json: process_items
   end
 
   def create
