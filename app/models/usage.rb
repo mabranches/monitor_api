@@ -1,6 +1,6 @@
 class Usage
   include Model
-  self.table_name = 'usage'
+  @table_name = 'usage'
   class << self
     def get(start, stop)
         items = @conn.scan(
@@ -13,13 +13,13 @@ class Usage
     end
 
     def get_instance(instance_id, start, stop)
-      @conn.query({
+      conn.query({
         table_name: @table_name,
         key_condition_expression: "instance_id = #{instance_id} AND usage_time BETWEEN #{start}  AND #{stop}"
       })
     end
     def create_table
-      @conn.create_table(
+      conn.create_table(
         table_name: @table_name,
         key_schema:[
           {attribute_name:'instance_id', key_type: 'HASH'},

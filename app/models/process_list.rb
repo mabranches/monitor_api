@@ -1,15 +1,15 @@
 class ProcessList
   include Model
-  self.table_name = 'processes'
+  @table_name = 'processes'
   class << self
     def get
-      items = @conn.scan(
+      items = conn.scan(
         table_name: @table_name
       ).data.items
     end
 
     def create_table
-      @conn.create_table(
+      conn.create_table(
         table_name: @table_name,
         key_schema:[
           {attribute_name:'instance_id', key_type: 'HASH'},
