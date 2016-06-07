@@ -53,30 +53,11 @@ class InstancesController < ApplicationController
   end
 
   def stop
-    instance_id = params[:id]
-
-    return render json: {}, status: :unprocessable_entity unless instance_id
-    ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
-    status = 'stopped'
-    begin
-      ec2.instance(instance_id).stop
-    rescue
-      status = 'unknown'
-    end
-    render json: { instance: instance_id, status: status }
+    aux_action(params, :stop)
   end
 
   def start
-    instance_id = params[:id]
-    return render json: {}, status: :unprocessable_entity unless instance_id
-    ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
-    status = 'running'
-    begin
-      ec2.instance(instance_id).start
-    rescue
-      status = 'unknown'
-    end
-    render json: { instance: instance_id, status: status }
+    aux_action(params, :start)
   end
 
   def status
@@ -93,6 +74,20 @@ class InstancesController < ApplicationController
   end
 
   private
+
+  def aux_action (params, method)
+    instance_id = params[:id]
+
+    return render json: {}, status: :unprocessable_entity unless instance_id
+    ec2 = Aws::EC2::Resource.new(region: 'us-west-2')
+    status = 'stopped'
+    begin
+      ec2.instance(instance_id).send(method)
+    rescue
+      status = 'unknown'
+    end
+    render json: { instance: instance_id, status: status }
+  end
 
   def add_item_hash(result, item)
     result[item['instance_id']] ||= Hash.new { |h, k| h[k] = [] }
