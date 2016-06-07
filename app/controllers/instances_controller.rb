@@ -1,5 +1,6 @@
 class InstancesController < ApplicationController
   before_action :set_instance, only: [:show, :update, :destroy]
+
   def usage
     usage_common(:get, (Time.now - 24.hours).utc.iso8601, Time.now.utc.iso8601)
   end
