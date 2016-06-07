@@ -53,24 +53,24 @@ class InstancesController < ApplicationController
 
   def stop
     @params = params
-    aux_action(:stop, 'stopped')
+    ec2_action(:stop, 'stopped')
   end
 
   def start
     @params = params
-    aux_action(:start, 'started')
+    ec2_action(:start, 'started')
   end
 
   def status
     @params = params
-    aux_block do |ec2, instance_id|
+    ec2_instance do |ec2|
       @status = ec2.state.name
     end
   end
 
   private
 
-  def aux_block(&block)
+  def ec2_instance
     instance_id = @params[:id]
 
     return render json: {}, status: :unprocessable_entity unless instance_id
@@ -84,9 +84,9 @@ class InstancesController < ApplicationController
     render json: { instance: instance_id, status: @status }
   end
 
-  def aux_action (method, status)
-    aux_block do |ec2|
-      ec2.start
+  def ec2_action(method, status)
+    ec2_instance do |ec2|
+      ec2.send(method)
       @status = status
     end
   end

@@ -6,10 +6,10 @@ RSpec.describe InstancesController, type: :controller do
   let(:valid_attributes) do
     {
       'id' => 'test_id',
-       'disk' => 51,
-       'mem' => 9,
-       'cpu' => 1,
-       'process' => { 'user' => 'root', 'pid' => 1, 'cpu' => 0.0, 'mem' => 0.0, 'command' => '/sbin/init' }
+      'disk' => 51,
+      'mem' => 9,
+      'cpu' => 1,
+      'process' => { 'user' => 'root', 'pid' => 1, 'cpu' => 0.0, 'mem' => 0.0, 'command' => '/sbin/init' }
     }
   end
 
