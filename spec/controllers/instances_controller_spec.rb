@@ -27,7 +27,7 @@ RSpec.describe InstancesController, type: :controller do
     usage = { 'disk' => 51, 'mem' => 9, 'cpu' => 1 }
 
     usage['instance_id'] = 'test_id'
-    (1..3).each do
+    3.times do
       new_usage = usage.dup
       new_usage['usage_time'] = @date.iso8601
       @date += 10.minutes
@@ -36,7 +36,7 @@ RSpec.describe InstancesController, type: :controller do
     end
 
     usage['instance_id'] = 'test_id2'
-    (1..3).each do
+    3.times do
       new_usage = usage.dup
       new_usage['usage_time'] = @date.iso8601
       @date += 10.minutes
@@ -77,11 +77,13 @@ RSpec.describe InstancesController, type: :controller do
           'cpu' => ['1.0', '6.0', '11.0'],
           'usage_time' => ['2016-05-01T20:53:32Z', '2016-05-01T21:03:32Z', '2016-05-01T21:13:32Z']
         },
-        'test_id' => { 'mem' => ['9.0', '9.0', '9.0'],
+        'test_id' => {
+          'mem' => ['9.0', '9.0', '9.0'],
           'disk' => ['51.0', '56.0', '61.0'],
           'cpu' => ['1.0', '1.0', '1.0'],
-          'usage_time' => ['2016-05-01T20:23:32Z', '2016-05-01T20:33:32Z', '2016-05-01T20:43:32Z'] }
-       })
+          'usage_time' => ['2016-05-01T20:23:32Z', '2016-05-01T20:33:32Z', '2016-05-01T20:43:32Z']
+        }
+      })
     end
   end
 
